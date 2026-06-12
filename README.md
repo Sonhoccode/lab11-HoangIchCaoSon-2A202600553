@@ -26,15 +26,15 @@ Day-11-Guardrails-HITL-Responsible-AI/
 │   ├── agents/
 │   │   └── agent.py               # Unsafe & protected agent creation
 │   ├── attacks/
-│   │   └── attacks.py             # TODO 1-2: Adversarial prompts & AI red teaming
+│   │   └── attacks.py             # Adversarial prompts & AI red teaming
 │   ├── guardrails/
-│   │   ├── input_guardrails.py    # TODO 3-5: Injection detection, topic filter, plugin
-│   │   ├── output_guardrails.py   # TODO 6-8: Content filter, LLM-as-Judge, plugin
-│   │   └── nemo_guardrails.py     # TODO 9: NeMo Guardrails with Colang
+│   │   ├── input_guardrails.py    # Injection detection, topic filter, plugin
+│   │   ├── output_guardrails.py   # Content filter, LLM-as-Judge, plugin
+│   │   └── nemo_guardrails.py     # NeMo Guardrails with Colang
 │   ├── testing/
-│   │   └── testing.py             # TODO 10-11: Before/after comparison, pipeline
+│   │   └── testing.py             # Before/after comparison, pipeline
 │   └── hitl/
-│       └── hitl.py                # TODO 12-13: Confidence router, HITL design
+│       └── hitl.py                # Confidence router, HITL design
 ├── requirements.txt
 └── README.md
 ```
@@ -62,6 +62,7 @@ jupyter notebook notebooks/lab11_guardrails_hitl.ipynb
 cd src/
 pip install -r ../requirements.txt
 export GOOGLE_API_KEY="your-api-key-here"
+$ENV:GOOGLE_API_KEY="AIzaSyBX1kqvQcxx3wyZHaAJ97hZNY3dj0pX3Pg"
 
 # Run the full lab
 python main.py
@@ -101,7 +102,7 @@ python hitl/hitl.py
 1. **Security Report**: Before/after comparison of 5+ attacks (ADK + NeMo)
 2. **HITL Flowchart**: 3 decision points with escalation paths
 
-## 13 TODOs
+## 13 Tasks
 
 | # | Description | Framework |
 |---|-------------|-----------|
@@ -128,4 +129,3 @@ python hitl/hitl.py
 - [AI Safety Fundamentals](https://aisafetyfundamentals.com/)
 - [AI Red Teaming Guide](https://github.com/requie/AI-Red-Teaming-Guide)
 - [antoan.ai - AI Safety Vietnam](https://antoan.ai)
-

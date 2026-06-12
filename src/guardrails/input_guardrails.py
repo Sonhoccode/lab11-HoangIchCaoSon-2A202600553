@@ -1,8 +1,5 @@
 """
 Lab 11 — Part 2A: Input Guardrails
-  TODO 3: Injection detection (regex)
-  TODO 4: Topic filter
-  TODO 5: Input Guardrail Plugin (ADK)
 """
 import re
 
@@ -14,18 +11,7 @@ from core.config import ALLOWED_TOPICS, BLOCKED_TOPICS
 
 
 # ============================================================
-# TODO 3: Implement detect_injection()
-#
-# Write regex patterns to detect prompt injection.
-# The function takes user_input (str) and returns True if injection is detected.
-#
-# Suggested patterns:
-# - "ignore (all )?(previous|above) instructions"
-# - "you are now"
-# - "system prompt"
-# - "reveal your (instructions|prompt)"
-# - "pretend you are"
-# - "act as (a |an )?unrestricted"
+# Prompt injection detection via regex patterns.
 # ============================================================
 
 def detect_injection(user_input: str) -> bool:
@@ -38,9 +24,16 @@ def detect_injection(user_input: str) -> bool:
         True if injection detected, False otherwise
     """
     INJECTION_PATTERNS = [
-        # TODO: Add at least 5 regex patterns
-        # Example:
-        # r"ignore (all )?(previous|above) instructions",
+        r"ignore (all )?(previous|above) instructions",
+        r"ignore .* instructions",
+        r"you are now",
+        r"system prompt",
+        r"reveal your (instructions|prompt)",
+        r"pretend you are",
+        r"act as (a |an )?unrestricted",
+        r"override your (instructions|system prompt)",
+        r"(bỏ qua|loại bỏ) .* (hướng dẫn|chỉ dẫn)",
+        r"(tiết lộ|cho xem) .* (system prompt|mật khẩu|prompt)",
     ]
 
     for pattern in INJECTION_PATTERNS:
@@ -50,13 +43,7 @@ def detect_injection(user_input: str) -> bool:
 
 
 # ============================================================
-# TODO 4: Implement topic_filter()
-#
-# Check if user_input belongs to allowed topics.
-# The VinBank agent should only answer about: banking, account,
-# transaction, loan, interest rate, savings, credit card.
-#
-# Return True if input should be BLOCKED (off-topic or blocked topic).
+# Topic filter: only allow banking-related questions.
 # ============================================================
 
 def topic_filter(user_input: str) -> bool:
@@ -70,23 +57,21 @@ def topic_filter(user_input: str) -> bool:
     """
     input_lower = user_input.lower()
 
-    # TODO: Implement logic:
-    # 1. If input contains any blocked topic -> return True
-    # 2. If input doesn't contain any allowed topic -> return True
-    # 3. Otherwise -> return False (allow)
+    # Block immediately if the user asks for clearly unsafe content.
+    for topic in BLOCKED_TOPICS:
+        if topic in input_lower:
+            return True
 
-    pass  # Replace with your implementation
+    # Allow only banking-related questions.
+    for topic in ALLOWED_TOPICS:
+        if topic in input_lower:
+            return False
+
+    return True
 
 
 # ============================================================
-# TODO 5: Implement InputGuardrailPlugin
-#
-# This plugin blocks bad input BEFORE it reaches the LLM.
-# Fill in the on_user_message_callback method.
-#
-# NOTE: The callback uses keyword-only arguments (after *).
-#   - user_message is types.Content (not str)
-#   - Return types.Content to block, or None to pass through
+# Input guardrail plugin: blocks bad input before it reaches the LLM.
 # ============================================================
 
 class InputGuardrailPlugin(base_plugin.BasePlugin):
@@ -128,14 +113,19 @@ class InputGuardrailPlugin(base_plugin.BasePlugin):
         self.total_count += 1
         text = self._extract_text(user_message)
 
-        # TODO: Implement logic:
-        # 1. Call detect_injection(text)
-        #    - If True: increment blocked_count, return self._block_response("...")
-        # 2. Call topic_filter(text)
-        #    - If True: increment blocked_count, return self._block_response("...")
-        # 3. If both are False: return None (let message through)
+        if detect_injection(text):
+            self.blocked_count += 1
+            return self._block_response(
+                "Request blocked: prompt injection attempt detected."
+            )
 
-        pass  # Replace with your implementation
+        if topic_filter(text):
+            self.blocked_count += 1
+            return self._block_response(
+                "Request blocked: this assistant only handles banking-related topics."
+            )
+
+        return None
 
 
 # ============================================================
